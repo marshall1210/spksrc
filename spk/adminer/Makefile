@@ -24,7 +24,8 @@ WIZARDS_DIR = src/wizard/
 INSTALL_DEP_SERVICES = apache-web
 START_DEP_SERVICES = apache-web
 INSTUNINST_RESTART_SERVICES = apache-web
-
+CONF_DIR = src/conf
+SYSTEM_GROUP = http
 POST_STRIP_TARGET = adminer_extra_install
 
 # Pure PHP package, make sure ARCH is not defined
