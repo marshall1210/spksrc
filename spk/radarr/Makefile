@@ -7,9 +7,7 @@ REQUIRED_DSM = 5.0
 # Mono not supported on ppc platforms. C.f. cross/mono/Makefile and references therein for details.
 UNSUPPORTED_ARCHS = $(PPC_ARCHS)
 
-DEPENDS = cross/busybox cross/curl cross/mediainfo cross/sqlite cross/radarr
-
-SPK_DEPENDS = "mono>3.6"
+DEPENDS = cross/curl cross/mediainfo cross/sqlite cross/radarr
 
 MAINTAINER = ressu
 DESCRIPTION  = Radarr is a movie manager like Couchpotato, but based on the Sonarr codebase. It can monitor multiple RSS feeds for new movie releases and will grab, sorts and rename them. It can also be configured to automatically upgrade the quality of files already downloaded if a better quality format becomes available.
@@ -33,8 +31,8 @@ WIZARDS_DIR = src/wizard/
 
 POST_STRIP_TARGET = radarr_extra_install
 
-BUSYBOX_CONFIG = usrmng
-ENV += BUSYBOX_CONFIG="$(BUSYBOX_CONFIG)"
+UNSUPPORTED_ARCHS = $(PPC_ARCHS) $(i686_ARCHS) $(ARMv7L_ARCHS)
+
 
 include ../../mk/spksrc.spk.mk
 

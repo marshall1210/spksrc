@@ -1,23 +1,29 @@
 PKG_NAME = Radarr
 PKG_VERS = 3.0.0.4204
 PKG_EXT = tar.gz
-PKG_DIST_NAME = $(PKG_NAME).master.$(PKG_VERS).linux.$(PKG_EXT)
-PKG_DIST_SITE = https://github.com/Radarr/Radarr/releases/download/v$(PKG_VERS)
-PKG_DIR = Radarr
+PKG_DIST_NAME = v$(PKG_VERS).$(PKG_EXT)
+PKG_DIST_FILE = $(PKG_NAME)-$(PKG_VERS).$(PKG_EXT)
+PKG_DIST_SITE = https://github.com/Radarr/Radarr/archive
+PKG_DIR = $(PKG_NAME)-$(PKG_VERS)/src
 
-DEPENDS =
+BUILD_DEPENDS = native/nodejs
 
 HOMEPAGE = https://radarr.video/
 COMMENT  = Radarr is a movie manager like Couchpotato, but based on the Sonarr codebase. It can monitor multiple RSS feeds for new movie releases and will grab, sorts and rename them. It can also be configured to automatically upgrade the quality of files already downloaded if a better quality format becomes available.
 LICENSE  = GNU GPL v3
 
-CONFIGURE_TARGET = nop
-COMPILE_TARGET = nop
 INSTALL_TARGET = radarr_install
+DOTNET_OPTIMIZE = 1
+DOTNET_OUTPUT_PATH = share
+SET_VERSION = /p:AssemblyVersion=$(PKG_VERS) /p:FileVersion=$(PKG_VERS) /p:InformationalVersion=$(PKG_VERS) /p:Version=$(PKG_VERS)
+DOTNET_BUILD_PROPERTIES += $(SET_VERSION)
 
-include ../../mk/spksrc.cross-cc.mk
+include ../../mk/spksrc.cross-dotnet.mk
 
-.PHONY: radarr_install
+ENV += NPM_CONFIG_USER=root
+PATH := $(WORK_DIR)/../../../native/nodejs/work-native/node/bin:$(PATH)
+
 radarr_install:
-	mkdir -p $(STAGING_INSTALL_PREFIX)/share/$(PKG_DIR)
-	tar -cf - -C $(WORK_DIR)/$(PKG_DIR) . | tar -xf - -C $(STAGING_INSTALL_PREFIX)/share/$(PKG_DIR)
+	install -m 755 -d $(STAGING_INSTALL_PREFIX)/UI
+	$(RUN) npm install && npm run build
+	cp -R $(WORK_DIR)/$(PKG_NAME)-$(PKG_VERS)/_output/UI $(STAGING_INSTALL_PREFIX)/share/

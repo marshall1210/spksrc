@@ -1,10 +1,9 @@
 PATH="${SYNOPKG_PKGDEST}/bin:${PATH}"
 MONO_PATH="/var/packages/mono/target/bin"
-MONO="${MONO_PATH}/mono"
 
 # Check versions during upgrade
-RADARR="${SYNOPKG_PKGDEST}/share/Radarr/Radarr.exe"
-SPK_RADARR="${SYNOPKG_PKGINST_TEMP_DIR}/share/Radarr/Radarr.exe"
+RADARR="${SYNOPKG_PKGDEST}/share/Radarr"
+SPK_RADARR="${SYNOPKG_PKGINST_TEMP_DIR}/share/Radarr"
 
 # Radarr uses custom Config and PID directories
 HOME_DIR="${SYNOPKG_PKGDEST}/var"
@@ -14,15 +13,10 @@ PID_FILE="${CONFIG_DIR}/Radarr/radarr.pid"
 # Some have it stored in the root of package
 LEGACY_CONFIG_DIR="${SYNOPKG_PKGDEST}/.config"
 
-# workaround for mono bug with armv5 (https://github.com/mono/mono/issues/12537)
-if [ "$SYNOPKG_DSM_ARCH" == "88f8621" -o "$SYNOPKG_DSM_ARCH" == "88f8622" ]; then
-    MONO="MONO_ENV_OPTIONS='-O=-aot,-float32' ${MONO_PATH}/mono"
-fi
-
 GROUP="sc-download"
 LEGACY_GROUP="sc-media"
 
-SERVICE_COMMAND="env PATH=${MONO_PATH}:${PATH} HOME=${HOME_DIR} LD_LIBRARY_PATH=${SYNOPKG_PKGDEST}/lib ${MONO} ${RADARR}"
+SERVICE_COMMAND="env HOME=${HOME_DIR} LD_LIBRARY_PATH=${SYNOPKG_PKGDEST}/lib ${RADARR}"
 SVC_BACKGROUND=y
 
 service_postinst ()
@@ -35,12 +29,6 @@ service_postinst ()
     # If nessecary, add user also to the old group before removing it
     syno_user_add_to_legacy_group "${EFF_USER}" "${USER}" "${LEGACY_GROUP}"
     syno_user_add_to_legacy_group "${EFF_USER}" "${USER}" "users"
-
-    # Discard legacy obsolete busybox user account
-    BIN=${SYNOPKG_PKGDEST}/bin
-    $BIN/busybox --install $BIN >> ${INST_LOG}
-    $BIN/delgroup "${USER}" "users" >> ${INST_LOG}
-    $BIN/deluser "${USER}" >> ${INST_LOG}
 }
 
 service_preupgrade ()
